@@ -3,9 +3,8 @@ This package intends to provide a tool to convert html files including
 images to a single MHTML self-content file
 """
 import logging
-import mhtml
 import click
-
+from .. import mhtml
 
 logging.basicConfig(level=logging.INFO,format="\x1b[32;20m %(filename)s > \x1b[34;20m %(funcName)s : \x1b[0m %(message)s")
 
