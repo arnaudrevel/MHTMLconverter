@@ -3,7 +3,7 @@ This package intends to provide a tool to convert markdown files including
 images to a single MHTML self-content file
 """
 import logging
-import mhtml
+from .. import mhtml
 import click
 import markdown
 
