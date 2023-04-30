@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO,format="%(filename)s - %(funcName)s - %(m
 
 
 @click.command(help="MD to MHTML converter")
-@click.option("-i","--input","mdfile",default="./Welcome! (Desktop)/Welcome.md",help="md input filename")
+@click.option("-i","--input","mdfile", required=True,help="md input filename")
 @click.option("-o","--output","outputfile",default="output.mhtml",help="mhtml output filename")
 def main(mdfile,outputfile):
     with open(mdfile,"r") as f:

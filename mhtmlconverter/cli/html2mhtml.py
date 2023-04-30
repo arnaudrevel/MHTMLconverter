@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO,format="\x1b[32;20m %(filename)s > \x1b[3
 
 
 @click.command(help="HTML to MHTML converter")
-@click.option("-i","--input","htmlfile",default="myindex_local.html",help="html input filename")
+@click.option("-i","--input","htmlfile",required=True, help="html input filename")
 @click.option("-o","--output","outputfile",default="output.mhtml",help="mhtml output filename")
 def main(htmlfile,outputfile):
     """
