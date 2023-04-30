@@ -11,8 +11,8 @@ from email.generator import Generator
 
 import logging
 
-import fileutility
-import htmlutility
+from . import fileutility
+from . import htmlutility
 
 from typing import Tuple
 

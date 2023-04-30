@@ -34,17 +34,3 @@ def get_content(url: URL) -> Tuple[bytes, isLocalFile]:
             with open(path.absolute(),"rb") as f:
                 return f.read(), True
         raise
-
-# def rewrite_if_relative(sourcefile: URL, img: URL) -> URL:
-
-#     # If it is not a local file img stay unchanged
-#     if urllib.parse.urlparse(img).scheme!='': return img
-
-#     path = pathlib.Path(img)
-
-#     if not path.is_absolute():
-#         sourcepath = pathlib.Path(sourcefile).parent
-#         path2 = sourcepath / path
-#         return path2.resolve()
-    
-#     return img
