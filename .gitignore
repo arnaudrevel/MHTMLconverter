@@ -2,3 +2,4 @@
 build
 dist
 mhtmlconverter.egg-info
+__pycache__
