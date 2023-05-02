@@ -51,17 +51,17 @@ def add_html_part(mhtmlfile: MIMEMultipart, sourcename: URL, htmlcontent: str) -
     return mhtmlfile
 
 
-isLocalFile = bool
+IsLocalFile = bool
 
 
-def add_img_part(mhtmlfile: MIMEMultipart, sourceurl: URL) -> Tuple[MIMEMultipart, isLocalFile]:
+def add_img_part(mhtmlfile: MIMEMultipart, sourceurl: URL) -> Tuple[MIMEMultipart, IsLocalFile]:
     """
         The image is encoded and its related location is set to the name
         of its reference into the HTML file
     """
-    content, isLocal = fileutility.get_content(sourceurl)
+    content, is_local = fileutility.get_content(sourceurl)
 
-    if isLocal:  # Don't know why but mime related do not work with file:// or local names
+    if is_local:  # Don't know why but mime related do not work with file:// or local names
         # It's indentifier must be rewrited
         sourceurl = htmlutility.rewrite_reference(sourceurl)
 
@@ -70,17 +70,17 @@ def add_img_part(mhtmlfile: MIMEMultipart, sourceurl: URL) -> Tuple[MIMEMultipar
     image_part.add_header('Content-Location', sourceurl)
     mhtmlfile.attach(image_part)
 
-    return mhtmlfile, isLocal
+    return mhtmlfile, is_local
 
 
-def url_to_mhtml(input: URL, output: FILENAME) -> None:
+def url_to_mhtml(input_file: URL, output: FILENAME) -> None:
     """
         Transform an html file into a mhmtl file
     """
     # Read HTML file content
-    htmlcontent = fileutility.get_html_content(input)
+    htmlcontent = fileutility.get_html_content(input_file)
     logging.debug(htmlcontent)
-    html_content_to_mhtml(htmlcontent, output, input)
+    html_content_to_mhtml(htmlcontent, output, input_file)
 
 
 def html_content_to_mhtml(htmlcontent: str, output: FILENAME, sourcefilepath: str) -> None:
@@ -99,7 +99,7 @@ def html_content_to_mhtml(htmlcontent: str, output: FILENAME, sourcefilepath: st
     # TODO: Add css file into the MHTML
 
     # Retrieve all the embedded images
-    logging.debug(f"*** Input : {input}")
+    logging.debug(f"*** Input : {htmlcontent}")
     list_of_img = htmlutility.get_list_of_img_from_html(htmlcontent)
     logging.debug(f"*** Images : {list_of_img}")
 
@@ -114,9 +114,9 @@ def html_content_to_mhtml(htmlcontent: str, output: FILENAME, sourcefilepath: st
         # # the directory where's the html file
         # img = fileutility.rewrite_if_relative(sourcefile, img)
 
-        mhtmlfile, isLocal = add_img_part(mhtmlfile, img)
+        mhtmlfile, is_local = add_img_part(mhtmlfile, img)
 
-        if isLocal:  # Don't know why but mime related do not work with file:// or local names
+        if is_local:  # Don't know why but mime related do not work with file:// or local names
             htmlcontent = htmlutility.rewrite_reference_in_html(
                 htmlcontent, img)
 
