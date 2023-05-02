@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO,format="\x1b[32;20m %(filename)s > \x1b[3
 @click.command(help="HTML to MHTML converter")
 @click.option("-i","--input","htmlfile",required=True, help="html input filename")
 @click.option("-o","--output","outputfile",default="output.mhtml",help="mhtml output filename")
-def main(htmlfile,outputfile):
+def main(htmlfile:str = "index.html",outputfile:str = "output.mhtml")-> None:
     """
     Main program
     Converts the 'htmlfile' with references to images into an mhtml single file

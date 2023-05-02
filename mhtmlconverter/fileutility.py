@@ -37,6 +37,6 @@ def get_content(url: URL) -> Tuple[bytes, IsLocalFile]:
         logging.debug(f"{url}")
         path = pathlib.Path(url)
         if path.exists():
-            with open(path.absolute(),"rb") as f:
-                return f.read(), True
+            with open(path.absolute(),"rb") as html_file:
+                return html_file.read(), True
         raise
