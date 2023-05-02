@@ -1,3 +1,6 @@
+"""
+    File utilities to get content from file
+"""
 import urllib.request
 import urllib.parse
 import urllib.error
@@ -18,10 +21,13 @@ def get_html_content(url: URL) -> str:
 
     return content.decode()
 
-isLocalFile = bool
+IsLocalFile = bool
 
-def get_content(url: URL) -> Tuple[bytes, isLocalFile]:
-    
+def get_content(url: URL) -> Tuple[bytes, IsLocalFile]:
+    """
+        Low level get content from file
+    """
+
     logging.info(url)
 
     try:
