@@ -19,6 +19,12 @@ def turn_relative_into_absolute(htmlcontent: str, sourcefilepath: str,
                                 tag: str = "img", att: str = "src") -> str:
     """
         Transform relative references into global
+
+        >>> turn_relative_into_absolute('<!DOCTYPE html><img src="img.jpg">',"http://www.test.fr/index.html")
+        '<!DOCTYPE html>\\n<img src="http://www.test.fr/img.jpg"/>'
+
+        >>> turn_relative_into_absolute('<!DOCTYPE html><img src="../img.jpg">',"http://www.test.fr/dir/index.html")
+        '<!DOCTYPE html>\\n<img src="http://www.test.fr/img.jpg"/>'
     """
 
     logging.info(f"Sourcefilepath: {sourcefilepath}")
@@ -89,18 +95,25 @@ def rewrite_reference(localurl: str) -> str:
         Simply add a fake "http://" protocol in front of the actual name
 
         TODO: check if it works even with file:// protocol
+
+        >>> rewrite_reference("img.jpg")
+        'http://img.jpg'
     """
     return f"http://{localurl}"
 
 
 def rewrite_reference_in_html(htmlcontent: str, reference: str) -> str:
     """
-        rewrite the references into the HTML Dom in for consistance with renamed references
+        rewrite the references into the HTML Dom for consistancy with renamed references
                 `rewrite_reference_in_html()`
+        
+        >>> rewrite_reference_in_html('<!DOCTYPE html><img src="img.jpg">', "img.jpg")
+        '<!DOCTYPE html>\\n<img src="http://img.jpg"/>'
+
     """
     soup = bs4.BeautifulSoup(htmlcontent, 'html.parser')
     for i in soup.find_all('img'):
-        if i.get('src') == reference:
+        if i.get('src') == reference:   # If the found img is the one referenced
             im = soup.new_tag('img')
             im['src'] = rewrite_reference(reference)
             i.replace_with(im)
