@@ -14,6 +14,7 @@ import urllib.parse
 import pathlib
 import bs4  # For HTML easy parsing and management
 
+URL = str
 
 def turn_relative_into_absolute(htmlcontent: str, sourcefilepath: str,
                                 tag: str = "img", att: str = "src") -> str:
@@ -36,36 +37,37 @@ def turn_relative_into_absolute(htmlcontent: str, sourcefilepath: str,
     soup = bs4.BeautifulSoup(htmlcontent, 'html.parser')
 
     for i in soup.find_all(tag):
-        srcimg = i[att]
+        if i.has_attr(att):
+            srcimg = i[att]
 
-        logging.info(f'Before:{srcimg}')
+            logging.info(f'Before:{srcimg}')
 
-        if src_is_local:
-            pathimg = pathlib.Path(srcimg)
-            logging.info(f"Path {tag}: {pathimg}")
-            if urllib.parse.urlparse(srcimg).scheme == '':
-                if not pathimg.is_absolute():
-                    sourcepath = pathlib.Path(sourcefilepath)
-                    logging.info(f"Sourcepath: {sourcepath}")
-                    path2 = sourcepath.parent / pathimg
-                    i[att] = path2.resolve()
-                else:
-                    i[att] = pathimg.resolve()
-        else:
-            pathurl = urllib.parse.urlparse(srcimg)
-            path_is_relative = pathurl.scheme == ''
+            if src_is_local:
+                pathimg = pathlib.Path(srcimg)
+                logging.info(f"Path {tag}: {pathimg}")
+                if urllib.parse.urlparse(srcimg).scheme == '':
+                    if not pathimg.is_absolute():
+                        sourcepath = pathlib.Path(sourcefilepath)
+                        logging.info(f"Sourcepath: {sourcepath}")
+                        path2 = sourcepath.parent / pathimg
+                        i[att] = path2.resolve()
+                    else:
+                        i[att] = pathimg.resolve()
+            else:
+                pathurl = urllib.parse.urlparse(srcimg)
+                path_is_relative = pathurl.scheme == ''
 
-            if path_is_relative:
-                i[att] = urllib.parse.urljoin(sourcefilepath, srcimg)
+                if path_is_relative:
+                    i[att] = urllib.parse.urljoin(sourcefilepath, srcimg)
 
-        logging.info(f'After:{i[att]}')
+            logging.info(f'After:{i[att]}')
 
     logging.debug(str(soup))
 
     return str(soup)
 
 
-def get_list_of_img_from_html(htmlcontent: str) -> list[str]:
+def get_list_of_img_from_html(htmlcontent: str) -> list[URL]:
     """
         Returns the list of URLs corresponding to the img
         referenced in the html file
@@ -84,6 +86,25 @@ def get_list_of_img_from_html(htmlcontent: str) -> list[str]:
     soup = bs4.BeautifulSoup(htmlcontent, 'html.parser')
 
     return [str(u.get('src')) for u in soup.find_all("img")]
+
+def get_list_of_css_from_html(htmlcontent: str) -> list[URL]:
+    """
+        Returns the list of URLs corresponding to the css files
+        referenced in the html file
+    """
+    logging.info(f"CONTENT {htmlcontent}")
+    # May throw a FileNotFound exception
+    soup = bs4.BeautifulSoup(htmlcontent, 'html.parser')
+
+    listhref = [str(u.get('href')) for u in soup.find_all("link")]
+
+    if listhref is None: listhref = list()
+
+    listhrefdata = [str(u.get('data-href')) for u in soup.find_all("link")]
+
+    if listhrefdata: listhref.append(listhrefdata)
+    
+    return listhref
 
 
 def rewrite_reference(localurl: str) -> str:
