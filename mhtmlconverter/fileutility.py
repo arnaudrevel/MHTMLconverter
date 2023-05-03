@@ -30,8 +30,12 @@ def get_content(url: URL) -> Tuple[bytes, IsLocalFile]:
 
     logging.info(url)
 
+    print(url)
+
     try:
-        content = urllib.request.urlopen(url).read()
+        # Let's pretend we are Mozilla to overpass HTTP 403 error
+        req = urllib.request.Request(url,headers={'User-Agent': 'Mozilla/5.0'})
+        content = urllib.request.urlopen(req).read()
         return content, False
     except Exception:
         logging.debug(f"{url}")
