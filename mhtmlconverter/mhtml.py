@@ -72,6 +72,30 @@ def add_img_part(mhtmlfile: MIMEMultipart, sourceurl: URL) -> Tuple[MIMEMultipar
 
     return mhtmlfile, is_local
 
+def add_css_part(mhtmlfile: MIMEMultipart, sourcecss: URL) -> Tuple[MIMEMultipart, IsLocalFile]:
+    """
+        The css file is encoded and its related location is set to the name
+        of its reference into the HTML file
+    """
+    try:
+        content, is_local = fileutility.get_content(sourcecss)
+
+        if is_local:  # Don't know why but mime related do not work with file:// or local names
+            # It's indentifier must be rewrited
+            sourcecss = htmlutility.rewrite_reference(sourcecss)
+
+        # Is it really a css file?
+
+
+        # Quick and dirty way to find image encoding :/
+        css_part = MIMEImage(content, "css")
+        css_part.add_header('Content-Location', sourcecss)
+        mhtmlfile.attach(css_part)
+
+        return mhtmlfile, is_local
+    except:
+        return mhtmlfile, False # If the file cannot be loaded
+
 
 def url_to_mhtml(input_file: URL, output: FILENAME) -> None:
     """
@@ -94,9 +118,9 @@ def html_content_to_mhtml(htmlcontent: str, output: FILENAME, sourcefilepath: st
     htmlcontent = htmlutility.turn_relative_into_absolute(
         htmlcontent, sourcefilepath)
 
-    # TODO : Turn all the css relative links into absolute links
-    # htmlcontent = htmlutility.turn_relative_into_absolute(htmlcontent, sourcefilepath, tag='link',att='href')
-    # TODO: Add css file into the MHTML
+    # Turn all the css relative links into absolute links
+    htmlcontent = htmlutility.turn_relative_into_absolute(htmlcontent, sourcefilepath, tag='link',att='href')
+    htmlcontent = htmlutility.turn_relative_into_absolute(htmlcontent, sourcefilepath, tag='link',att='data-href')
 
     # Retrieve all the embedded images
     logging.debug(f"*** Input : {htmlcontent}")
@@ -110,15 +134,26 @@ def html_content_to_mhtml(htmlcontent: str, output: FILENAME, sourcefilepath: st
     for img in list_of_img:
         logging.debug(img)
 
-        # # If the link to the image is relative rewrite it in reference to
-        # # the directory where's the html file
-        # img = fileutility.rewrite_if_relative(sourcefile, img)
-
         mhtmlfile, is_local = add_img_part(mhtmlfile, img)
 
         if is_local:  # Don't know why but mime related do not work with file:// or local names
             htmlcontent = htmlutility.rewrite_reference_in_html(
                 htmlcontent, img)
+
+    # Retrieve all the embedded css
+    logging.debug(f"*** Input : {htmlcontent}")
+    list_of_css = htmlutility.get_list_of_css_from_html(htmlcontent)
+    logging.debug(f"*** Images : {list_of_css}") 
+
+    # Add css file into the MHTML
+    for css in list_of_css:
+        logging.debug(css)
+
+        mhtmlfile, is_local = add_css_part(mhtmlfile, css)
+
+        if is_local:  # Don't know why but mime related do not work with file:// or local names
+            htmlcontent = htmlutility.rewrite_reference_in_html(
+                htmlcontent, css)
 
     # Add htmlcontent
     mhtmlfile = add_html_part(mhtmlfile, input, htmlcontent)
