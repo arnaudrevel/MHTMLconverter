@@ -1,9 +1,10 @@
 """
+    Tests for html2mhtml conversion
 """
 
+import pathlib
 import mhtmlconverter.mhtml
 
-import pathlib
 
 def test_html() -> None:
     """
