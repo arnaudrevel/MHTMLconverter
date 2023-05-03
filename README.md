@@ -23,6 +23,6 @@ Converts markdown files (either local or remote) to mhtml, including referenced 
 
 ```
 
-### TODO
+### ~~TODO~~
 
-css are not yet managed :/
+~~css are not yet managed :/~~
