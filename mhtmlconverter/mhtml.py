@@ -9,11 +9,15 @@ from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.generator import Generator
 
+import email
+
 import logging
 from typing import Tuple
 
 from . import fileutility
 from . import htmlutility
+
+import base64
 
 URL = str
 FILENAME = str
@@ -162,3 +166,38 @@ def html_content_to_mhtml(htmlcontent: str, output: FILENAME, sourcefilepath: st
     with open(output, 'w') as f:
         gen = Generator(f, False)
         gen.flatten(mhtmlfile)
+
+def mhtml_to_html(mhtmlfile: str, htmlfile: str, resourcesdir: str = "_resources") -> None:
+    """
+        Convert mhtml to local html file 
+    """
+    mimefile, IsLocalFile = fileutility.get_content(mhtmlfile)
+
+    msg = email.message_from_bytes(mimefile)
+
+    htmlcontent: str
+    list_of_imgs: dict[str,str] = dict()
+
+    for part in msg.walk():
+        if part.get_content_type()=="text/html":
+            htmlcontent = part.get_payload()
+
+        if part.get_content_type().startswith("image"):
+            urlname = part['Content-Location'].strip()
+            imagecontent = base64.b64decode(part.get_payload())
+            list_of_imgs[urlname]=imagecontent
+
+    mhtmlfile = fileutility.to_absolute(mhtmlfile)
+    htmlfile = fileutility.to_absolute(htmlfile, mhtmlfile)
+    resourcesdir = fileutility.to_absolute(resourcesdir, htmlfile) # Path to resourcedir
+
+    for i,content in list_of_imgs.items():
+        fileutility.create_file(fileutility.get_res_path(i),resourcesdir,content)
+
+    
+
+    fileutility.create_file(htmlfile,content=htmlcontent.encode())
+    
+    return None
+
+
