@@ -10,11 +10,11 @@ def test_html() -> None:
     """
         Test HTML
     """
-    out = pathlib.Path("./tests/resources/test.mhtml")
+    out = pathlib.Path("./tests/resources/results/test.mhtml")
 
     if out.exists():    out.unlink()
 
-    mhtmlconverter.mhtml.url_to_mhtml("./tests/resources/test.html","./tests/resources/test.mhtml")
+    mhtmlconverter.mhtml.url_to_mhtml("./tests/resources/test.html","./tests/resources/results/test.mhtml")
 
     assert(out.exists())
 
