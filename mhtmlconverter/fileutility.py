@@ -83,10 +83,32 @@ def create_file(relpath: str, resourcesdir: str = "", content: bytes = None) -> 
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(content)
 
-def find_relative_path(pathsrc: str, path2: str) -> str:
+def find_relative_path(pathsrcstr: str, path2str: str) -> str:
     """
-        Returns the relative path for path2 in reference to pathsrc 
+        Returns the relative path for absolute path2 in reference to absolute pathsrc
+
+        >>> find_relative_path("/path/to/html/index.html", "/path/to/html/_resources/img.jpg")
+        '_resources/img.jpg'
+        >>> find_relative_path("/path/to/html/index.html", "/path/to/_resources/img.jpg")
+        '../_resources/img.jpg'
+        >>> find_relative_path("/path/to/html/index.html", "/another/path/to/_resources/img.jpg")
+        '/another/path/to/_resources/img.jpg'
+
     """
+    pathsrc = pathlib.Path(pathsrcstr)
+    path2 = pathlib.Path(path2str)
+
+    partssrc=pathsrc.parts
+    partspath2 = path2.parts
+
     i=0
-    while pathsrc[i]==path2[i]: i+=1    
-    return path2[i:]
+
+    while i < len(partssrc) and i < len(partspath2) and partssrc[i] == partspath2[i]:
+        i+=1
+
+    if i==0 or i==1: # No common part
+        return path2.as_posix()
+
+    prefix = (len(partssrc)-i-1)*[".."] # Add as many ".." as subdirectories to find the html file
+
+    return (pathlib.Path(*prefix) / pathlib.Path(*partspath2[i:])).as_posix()
