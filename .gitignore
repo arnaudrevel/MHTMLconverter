@@ -3,5 +3,4 @@ build
 dist
 mhtmlconverter.egg-info
 __pycache__
-tests/resources/
 tests/resources/results/*
