@@ -183,9 +183,11 @@ def mhtml_to_html(mhtmlfile: str, htmlfile: str, resourcesdir: str = "_resources
             htmlcontent = part.get_payload()
 
         if part.get_content_type().startswith("image"):
-            urlname = part['Content-Location'].strip()
-            imagecontent = base64.b64decode(part.get_payload())
-            img_content_dict[urlname]=imagecontent
+            if not part.get_content_type().endswith("css"):
+                urlname = part['Content-Location'].strip()
+                imagecontent = base64.b64decode(part.get_payload())
+                img_content_dict[urlname]=imagecontent
+                ### TODO: CSS
 
     mhtmlfile = fileutility.to_absolute(mhtmlfile)
     htmlfile = fileutility.to_absolute(htmlfile, mhtmlfile)
@@ -195,7 +197,9 @@ def mhtml_to_html(mhtmlfile: str, htmlfile: str, resourcesdir: str = "_resources
         rewrited_path=fileutility.get_res_path(i)
         fileutility.create_file(rewrited_path,resourcesdir,content)
 
-        htmlcontent = htmlutility.rewrite_reference_in_html(htmlcontent, i, lambda s: resourcesdir+fileutility.get_res_path(s))
+        ### Rewrite with relative reference to htmlfile dir
+        htmlcontent = htmlutility.rewrite_reference_in_html(htmlcontent, i, 
+            lambda s: fileutility.find_relative_path(htmlfile,resourcesdir)+fileutility.get_res_path(s))
 
     fileutility.create_file(htmlfile,content=htmlcontent.encode())
 
