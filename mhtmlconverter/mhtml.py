@@ -67,7 +67,7 @@ def add_img_part(mhtmlfile: MIMEMultipart, sourceurl: URL) -> Tuple[MIMEMultipar
 
     if is_local:  # Don't know why but mime related do not work with file:// or local names
         # It's indentifier must be rewrited
-        sourceurl = htmlutility.rewrite_reference(sourceurl)
+        sourceurl = htmlutility.rewrite_reference_fake_http(sourceurl)
 
     # Quick and dirty way to find image encoding :/
     image_part = MIMEImage(content, sourceurl.split(".")[-1])
@@ -86,7 +86,7 @@ def add_css_part(mhtmlfile: MIMEMultipart, sourcecss: URL) -> Tuple[MIMEMultipar
 
         if is_local:  # Don't know why but mime related do not work with file:// or local names
             # It's indentifier must be rewrited
-            sourcecss = htmlutility.rewrite_reference(sourcecss)
+            sourcecss = htmlutility.rewrite_reference_fake_http(sourcecss)
 
         # Is it really a css file?
 
@@ -171,12 +171,12 @@ def mhtml_to_html(mhtmlfile: str, htmlfile: str, resourcesdir: str = "_resources
     """
         Convert mhtml to local html file 
     """
-    mimefile, IsLocalFile = fileutility.get_content(mhtmlfile)
+    mimefile, _ = fileutility.get_content(mhtmlfile)
 
     msg = email.message_from_bytes(mimefile)
 
     htmlcontent: str
-    list_of_imgs: dict[str,str] = dict()
+    img_content_dict: dict[str,str] = dict()
 
     for part in msg.walk():
         if part.get_content_type()=="text/html":
@@ -185,19 +185,18 @@ def mhtml_to_html(mhtmlfile: str, htmlfile: str, resourcesdir: str = "_resources
         if part.get_content_type().startswith("image"):
             urlname = part['Content-Location'].strip()
             imagecontent = base64.b64decode(part.get_payload())
-            list_of_imgs[urlname]=imagecontent
+            img_content_dict[urlname]=imagecontent
 
     mhtmlfile = fileutility.to_absolute(mhtmlfile)
     htmlfile = fileutility.to_absolute(htmlfile, mhtmlfile)
     resourcesdir = fileutility.to_absolute(resourcesdir, htmlfile) # Path to resourcedir
 
-    for i,content in list_of_imgs.items():
-        fileutility.create_file(fileutility.get_res_path(i),resourcesdir,content)
+    for i,content in img_content_dict.items():
+        rewrited_path=fileutility.get_res_path(i)
+        fileutility.create_file(rewrited_path,resourcesdir,content)
 
-    
+        htmlcontent = htmlutility.rewrite_reference_in_html(htmlcontent, i, lambda s: resourcesdir+fileutility.get_res_path(s))
 
     fileutility.create_file(htmlfile,content=htmlcontent.encode())
-    
+
     return None
-
-
