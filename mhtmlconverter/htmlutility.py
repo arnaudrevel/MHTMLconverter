@@ -13,6 +13,7 @@ import logging
 import urllib.parse
 import pathlib
 import bs4  # For HTML easy parsing and management
+import typing
 
 URL = str
 
@@ -107,7 +108,7 @@ def get_list_of_css_from_html(htmlcontent: str) -> list[URL]:
     return listhref
 
 
-def rewrite_reference(localurl: str) -> str:
+def rewrite_reference_fake_http(localurl: str) -> str:
     """
         Transform a local reference into a fake http reference
 
@@ -117,13 +118,14 @@ def rewrite_reference(localurl: str) -> str:
 
         TODO: check if it works even with file:// protocol
 
-        >>> rewrite_reference("img.jpg")
+        >>> rewrite_reference_fake_http("img.jpg")
         'http://img.jpg'
     """
     return f"http://{localurl}"
 
 
-def rewrite_reference_in_html(htmlcontent: str, reference: str) -> str:
+def rewrite_reference_in_html(htmlcontent: str, reference: str, 
+        rewrite_func: typing.Callable[[str],str] = rewrite_reference_fake_http) -> str:
     """
         rewrite the references into the HTML Dom for consistancy with renamed references
                 `rewrite_reference_in_html()`
@@ -136,6 +138,6 @@ def rewrite_reference_in_html(htmlcontent: str, reference: str) -> str:
     for i in soup.find_all('img'):
         if i.get('src') == reference:   # If the found img is the one referenced
             im = soup.new_tag('img')
-            im['src'] = rewrite_reference(reference)
+            im['src'] = rewrite_func(reference)
             i.replace_with(im)
     return str(soup)
