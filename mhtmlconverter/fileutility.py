@@ -82,3 +82,11 @@ def create_file(relpath: str, resourcesdir: str = "", content: bytes = None) -> 
     path = pathlib.Path(resourcesdir+relpath)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(content)
+
+def find_relative_path(pathsrc: str, path2: str) -> str:
+    """
+        Returns the relative path for path2 in reference to pathsrc 
+    """
+    i=0
+    while pathsrc[i]==path2[i]: i+=1    
+    return path2[i:]
