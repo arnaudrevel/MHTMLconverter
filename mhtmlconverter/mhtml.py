@@ -180,7 +180,7 @@ def mhtml_to_html(mhtmlfile: str, htmlfile: str, resourcesdir: str = "_resources
 
     for part in msg.walk():
         if part.get_content_type()=="text/html":
-            htmlcontent = part.get_payload()
+            htmlcontent = part.get_payload(decode=True).decode()
 
         if part.get_content_type().startswith("image"):
             if not part.get_content_type().endswith("css"):
