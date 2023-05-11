@@ -53,3 +53,15 @@ def test_mhtml_relative() -> None:
     mhtmlconverter.mhtml.mhtml_to_html("./tests/resources/test_mhtml.mhtml","results/test_relative/test_mhtml.html","../relative_resources")
 
     assert(out.exists())
+
+def test_mhtml_with_css():
+    out = pathlib.Path("./tests/resources/results/test_mhtml_css.html")
+    outdir = pathlib.Path("./tests/resources/results/test_css")
+    
+    if out.exists():    out.unlink()
+    if outdir.exists():
+        shutil.rmtree(outdir.resolve())
+    
+    mhtmlconverter.mhtml.mhtml_to_html("./tests/resources/test_mhtml_css.mhtml","results/test_mhtml_css.html","test_css")
+
+    assert(out.exists())
