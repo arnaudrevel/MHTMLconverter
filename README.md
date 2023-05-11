@@ -38,3 +38,14 @@ this location
 >> python -m mhtmlconverter.cli.mhtml2html -i index.mhtml -o index.html -r resources_dir
 
 ```
+
+### html2mtml, md2mtml, mhtml2html
+
+Those scripts should work...
+
+```
+    >>> html2mtml --help
+    >>> md2mtml --help
+    >>> mhtml2html --help
+
+```
